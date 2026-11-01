@@ -82,6 +82,52 @@
       <h1 class="hero-heading" data-i18n="hero_title">世界著名建筑与地标画廊</h1>
       <p class="hero-sub" data-i18n="hero_sub">探索人类历史上最壮丽的建筑奇迹。每座地标均配有可交互3D模型、建筑力学解构、历史背景与中英双语语音导赏。</p>
 
+      <!-- Hero 3D Interactive Showcase Stage -->
+      <div class="hero-3d-stage" id="hero-3d-stage">
+        <div class="hero-3d-viewport-box">
+          <div id="hero-three-canvas" class="hero-three-canvas"></div>
+          
+          <!-- Top HUD info overlay -->
+          <div class="stage-hud-top">
+            <div class="stage-title-group">
+              <span class="stage-tag-live"><i class="fa-solid fa-cube"></i> <span data-i18n="live_3d">实时 3D 建筑几何视角 · Live WebGL</span></span>
+              <h2 id="stage-landmark-name" class="stage-landmark-title">万里长城 Great Wall of China</h2>
+              <div id="stage-landmark-meta" class="stage-landmark-meta">🇨🇳 中国 · 公元前7世纪 · 古代军事防御工程</div>
+            </div>
+
+            <div class="stage-hud-tools">
+              <button type="button" id="stage-btn-rotate" class="hud-pill-btn" title="自动旋转 / Toggle Auto-Rotation">
+                <i class="fa-solid fa-rotate"></i>
+                <span class="hud-btn-txt" data-i18n="rotate">自动旋转</span>
+              </button>
+              <button type="button" id="stage-btn-wireframe" class="hud-pill-btn" title="线框透视模式 / Wireframe Mode">
+                <i class="fa-solid fa-draw-polygon"></i>
+                <span class="hud-btn-txt" data-i18n="wireframe">线框模式</span>
+              </button>
+              <button type="button" id="stage-btn-reset" class="hud-pill-btn" title="重置视角 / Reset Camera">
+                <i class="fa-solid fa-arrows-to-dot"></i>
+                <span class="hud-btn-txt" data-i18n="reset_view">重置视角</span>
+              </button>
+              <button type="button" id="stage-btn-details" class="hud-pill-btn btn-gold-accent" title="详细图录与中英语音导赏 / Open Deep Dive & Audio Guide">
+                <i class="fa-solid fa-book-open"></i>
+                <span class="hud-btn-txt" data-i18n="view_details">详细图录</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom floating tip & Quick Switch Ribbon -->
+          <div class="stage-hud-bottom">
+            <div class="stage-quick-pills-label">
+              <i class="fa-solid fa-hand-pointer"></i>
+              <span data-i18n="stage_tip">拖拽 360° 旋转 · 滚轮缩放 | 快速切换 3D 地标：</span>
+            </div>
+            <div class="stage-quick-ribbon" id="stage-quick-ribbon">
+              <!-- Dynamically populated by js/app.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- View Switcher -->
       <div class="view-mode-bar">
         <button type="button" id="btn-view-gallery" class="view-mode-btn active">
@@ -280,6 +326,7 @@
   <!-- Scripts -->
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data/landmarks.js"></script>
   <script src="js/three-viewer.js"></script>

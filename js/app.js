@@ -14,11 +14,15 @@
   let viewMode = 'gallery'; // 'gallery' | 'map'
   let leafletMap = null;
   let leafletMarkers = [];
-  let threeViewer = null;
+
+  // 3D Viewers
+  let heroViewer = null;
+  let modalViewer = null;
+  let currentHeroLandmark = null;
   let activeLandmark = null;
   let isSpeaking = false;
 
-  // DOM
+  // DOM Elements
   const gridContainer = document.getElementById('landmarks-grid');
   const countDisplay = document.getElementById('landmarks-count');
   const searchInput = document.getElementById('search-input');
@@ -33,10 +37,38 @@
   const audioGuideBtn = document.getElementById('btn-audio-guide');
   const externalLinkBtn = document.getElementById('btn-external-link');
 
-  // Three.js modal control buttons
+  // Hero 3D Stage DOM
+  const heroStage = document.getElementById('hero-3d-stage');
+  const heroStageTitle = document.getElementById('stage-landmark-name');
+  const heroStageMeta = document.getElementById('stage-landmark-meta');
+  const heroStageRibbon = document.getElementById('stage-quick-ribbon');
+  const heroBtnRotate = document.getElementById('stage-btn-rotate');
+  const heroBtnWireframe = document.getElementById('stage-btn-wireframe');
+  const heroBtnReset = document.getElementById('stage-btn-reset');
+  const heroBtnDetails = document.getElementById('stage-btn-details');
+
+  // Modal 3D controls
   const btnWireframe = document.getElementById('btn-toggle-wireframe');
   const btnRotate = document.getElementById('btn-toggle-rotate');
   const btnResetVp = document.getElementById('btn-reset-view');
+
+  // Featured landmarks for Hero Ribbon
+  const HERO_RIBBON_IDS = [
+    'great-wall',
+    'taj-mahal',
+    'eiffel-tower',
+    'sydney-opera-house',
+    'colosseum',
+    'pyramids-giza',
+    'stonehenge',
+    'parthenon',
+    'statue-of-liberty',
+    'sagrada-familia',
+    'himeji-castle',
+    'burj-khalifa',
+    'golden-gate-bridge',
+    'arc-de-triomphe'
+  ];
 
   // Translations
   const I18N = {
@@ -49,6 +81,7 @@
     btn_random: { zh: "随机漫游", en: "Random Wander" },
     explore_3d: { zh: "探索3D模型", en: "Explore 3D" },
     view_details: { zh: "详细图录", en: "Details" },
+    focus_3d: { zh: "3D全景", en: "3D Stage" },
     model_tip: { zh: "拖拽旋转 · 滚轮缩放 3D 几何", en: "Drag to rotate · Scroll to zoom 3D geometry" },
     wireframe: { zh: "线框模式", en: "Wireframe" },
     rotate: { zh: "自动旋转", en: "Auto Rotate" },
@@ -57,6 +90,8 @@
     stop_guide: { zh: "停止朗读", en: "Stop Audio" },
     maps_view: { zh: "谷歌卫星图", en: "Google Satellite" },
     unesco_badge: { zh: "世界文化遗产", en: "UNESCO World Heritage" },
+    live_3d: { zh: "实时 3D 建筑几何视角 · Live WebGL", en: "Live 3D Architectural Geometry · WebGL" },
+    stage_tip: { zh: "拖拽 360° 旋转 · 滚轮缩放 | 快速切换 3D 地标：", en: "Drag to rotate 360° · Scroll to zoom | Quick switch 3D model:" },
     footer_text: { zh: "世界著名建筑与地标画廊 (World Landmarks 3D) · 开源探索项目", en: "World Landmarks 3D · Open Source Architectural Explorer" }
   };
 
@@ -64,6 +99,7 @@
     applyTheme(currentTheme);
     applyLanguage(currentLang);
     bindEvents();
+    initHero3DStage();
     renderGallery();
   }
 
@@ -97,6 +133,10 @@
       }
     });
 
+    if (currentHeroLandmark) {
+      updateHeroStageInfo(currentHeroLandmark);
+    }
+    renderHeroRibbon();
     renderGallery();
     if (viewMode === 'map') {
       updateMapMarkers();
@@ -106,9 +146,118 @@
     }
   }
 
+  // =========================================================================
+  // Hero 3D Interactive Showcase Stage
+  // =========================================================================
+
+  function initHero3DStage() {
+    const container = document.getElementById('hero-three-canvas');
+    if (!container || typeof THREE === 'undefined') return;
+
+    heroViewer = new Landmark3DViewer('hero-three-canvas', {
+      autoRotate: true,
+      cameraZ: 21,
+      cameraY: 8.5
+    });
+
+    // Default to the first landmark (万里长城 Great Wall of China)
+    currentHeroLandmark = LANDMARKS_DATA[0];
+    heroViewer.loadModel(currentHeroLandmark.modelType);
+    updateHeroStageInfo(currentHeroLandmark);
+    renderHeroRibbon();
+
+    // Bind Hero Stage controls
+    if (heroBtnRotate) {
+      heroBtnRotate.addEventListener('click', () => {
+        if (heroViewer) {
+          const isRot = heroViewer.toggleAutoRotate();
+          heroBtnRotate.classList.toggle('active', isRot);
+        }
+      });
+    }
+
+    if (heroBtnWireframe) {
+      heroBtnWireframe.addEventListener('click', () => {
+        if (heroViewer) {
+          const isWire = heroViewer.toggleWireframe();
+          heroBtnWireframe.classList.toggle('active', isWire);
+        }
+      });
+    }
+
+    if (heroBtnReset) {
+      heroBtnReset.addEventListener('click', () => {
+        if (heroViewer) heroViewer.resetView();
+      });
+    }
+
+    if (heroBtnDetails) {
+      heroBtnDetails.addEventListener('click', () => {
+        if (currentHeroLandmark) openModal(currentHeroLandmark);
+      });
+    }
+  }
+
+  function updateHeroStage(landmark) {
+    if (!landmark || !heroViewer) return;
+    currentHeroLandmark = landmark;
+    heroViewer.loadModel(landmark.modelType);
+    heroViewer.resetView();
+    updateHeroStageInfo(landmark);
+
+    // Update active pill in ribbon
+    document.querySelectorAll('.stage-ribbon-pill').forEach(pill => {
+      pill.classList.toggle('active', pill.getAttribute('data-id') === landmark.id);
+    });
+  }
+
+  function updateHeroStageInfo(item) {
+    if (!item) return;
+    const name = item.name[currentLang] || item.name.en;
+    const subName = currentLang === 'zh' ? item.name.en : item.name.zh;
+    const country = item.country[currentLang] || item.country.en;
+    const style = item.style[currentLang] || item.style.en;
+
+    if (heroStageTitle) {
+      heroStageTitle.textContent = `${name} · ${subName}`;
+    }
+    if (heroStageMeta) {
+      heroStageMeta.textContent = `${item.flag} ${country} · ${item.year} · ${style} · ${item.height}`;
+    }
+  }
+
+  function renderHeroRibbon() {
+    if (!heroStageRibbon) return;
+
+    heroStageRibbon.innerHTML = HERO_RIBBON_IDS.map(id => {
+      const item = LANDMARKS_DATA.find(x => x.id === id);
+      if (!item) return '';
+      const name = item.name[currentLang] || item.name.en;
+      const isActive = currentHeroLandmark && currentHeroLandmark.id === id ? 'active' : '';
+
+      return `
+        <button type="button" class="stage-ribbon-pill ${isActive}" data-id="${item.id}">
+          <span>${item.flag}</span>
+          <span>${name}</span>
+        </button>
+      `;
+    }).join('');
+
+    heroStageRibbon.querySelectorAll('.stage-ribbon-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const item = LANDMARKS_DATA.find(x => x.id === id);
+        if (item) updateHeroStage(item);
+      });
+    });
+  }
+
+  // =========================================================================
+  // Gallery Filtering & Rendering
+  // =========================================================================
+
   function getFilteredLandmarks() {
     return LANDMARKS_DATA.filter(item => {
-      // 1. Dimension filters
       if (activeFilterDim === 'curated') {
         if (activeFilterVal === 'new7' && item.wonder !== 'new7') return false;
         if (activeFilterVal === 'ancient' && item.category !== 'ancient') return false;
@@ -120,27 +269,21 @@
         if (activeFilterVal !== 'all' && item.category !== activeFilterVal) return false;
       }
 
-      // 2. Search query
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        const nameZh = item.name.zh.toLowerCase();
-        const nameEn = item.name.en.toLowerCase();
-        const countryZh = item.country.zh.toLowerCase();
-        const countryEn = item.country.en.toLowerCase();
+        const nZh = item.name.zh.toLowerCase();
+        const nEn = item.name.en.toLowerCase();
+        const cZh = item.country.zh.toLowerCase();
+        const cEn = item.country.en.toLowerCase();
         const cityZh = item.city.zh.toLowerCase();
         const cityEn = item.city.en.toLowerCase();
-        const styleZh = item.style.zh.toLowerCase();
-        const styleEn = item.style.en.toLowerCase();
-        const descZh = item.desc.zh.toLowerCase();
-        const descEn = item.desc.en.toLowerCase();
+        const sZh = item.style.zh.toLowerCase();
+        const sEn = item.style.en.toLowerCase();
 
-        return (
-          nameZh.includes(q) || nameEn.includes(q) ||
-          countryZh.includes(q) || countryEn.includes(q) ||
-          cityZh.includes(q) || cityEn.includes(q) ||
-          styleZh.includes(q) || styleEn.includes(q) ||
-          descZh.includes(q) || descEn.includes(q)
-        );
+        return nZh.includes(q) || nEn.includes(q) ||
+               cZh.includes(q) || cEn.includes(q) ||
+               cityZh.includes(q) || cityEn.includes(q) ||
+               sZh.includes(q) || sEn.includes(q);
       }
 
       return true;
@@ -156,16 +299,15 @@
       if (currentLang === 'zh') {
         countDisplay.textContent = `共展示 ${list.length} / ${LANDMARKS_DATA.length} 座世界地标与建筑奇迹`;
       } else {
-        countDisplay.textContent = `Showing ${list.length} of ${LANDMARKS_DATA.length} iconic world landmarks`;
+        countDisplay.textContent = `Displaying ${list.length} of ${LANDMARKS_DATA.length} world landmarks`;
       }
     }
 
     if (list.length === 0) {
       gridContainer.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
-          <i class="fa-solid fa-archway" style="font-size: 3rem; margin-bottom: 1rem; color: var(--text-subtle);"></i>
-          <h3>${currentLang === 'zh' ? '未找到匹配的地标' : 'No matching landmarks found'}</h3>
-          <p>${currentLang === 'zh' ? '请尝试更换关键词或重置筛选条件' : 'Try another search term or reset category filters'}</p>
+          <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p style="font-size: 1.1rem; font-weight: 600;">${currentLang === 'zh' ? '未找到符合条件的地标建筑，请尝试其他关键词。' : 'No matching landmarks found. Try another search term.'}</p>
         </div>
       `;
       return;
@@ -187,7 +329,7 @@
               <span>${item.flag}</span>
               <span>${country}</span>
             </div>
-            <div class="card-3d-tag">
+            <div class="card-3d-tag" title="点击在上方3D舞台观察 / Focus on 3D Stage">
               <i class="fa-solid fa-cube"></i>
               <span>3D</span>
             </div>
@@ -205,18 +347,20 @@
             <p class="card-desc">${desc}</p>
 
             <div class="card-footer">
-              <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-gold);"><i class="fa-solid fa-arrows-up-down"></i> ${item.height}</span>
-              <span class="btn-card-explore">
-                <span>${I18N.explore_3d[currentLang]}</span>
+              <button type="button" class="btn-card-stage" data-id="${item.id}" title="在上方3D舞台加载此建筑">
+                <i class="fa-solid fa-cube"></i>
+                <span>${I18N.focus_3d[currentLang]}</span>
+              </button>
+              <button type="button" class="btn-card-explore" data-id="${item.id}">
+                <span>${I18N.view_details[currentLang]}</span>
                 <i class="fa-solid fa-arrow-right"></i>
-              </span>
+              </button>
             </div>
           </div>
         </div>
       `;
     }).join('');
 
-    // Attach card click handlers and 3D tilt effects
     attachCardInteractions();
   }
 
@@ -225,8 +369,23 @@
     cards.forEach(card => {
       const id = card.getAttribute('data-id');
       const item = LANDMARKS_DATA.find(x => x.id === id);
+      if (!item) return;
 
+      // 1. Focus 3D button -> loads 3D model into hero stage & scrolls up smoothly
+      const btnStage = card.querySelector('.btn-card-stage');
+      if (btnStage) {
+        btnStage.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateHeroStage(item);
+          if (heroStage) {
+            heroStage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      }
+
+      // 2. Details button / Whole card click -> opens deep dive modal & updates hero stage
       card.addEventListener('click', () => {
+        updateHeroStage(item);
         openModal(item);
       });
 
@@ -237,10 +396,10 @@
         const y = e.clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -6;
-        const rotateY = ((x - centerX) / centerX) * 6;
+        const rotateX = ((y - centerY) / centerY) * -5;
+        const rotateY = ((x - centerX) / centerX) * 5;
 
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
       });
 
       card.addEventListener('mouseleave', () => {
@@ -262,7 +421,6 @@
       maxZoom: 16
     });
 
-    // Dark-themed CartoDB tiles
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
       subdomains: 'abcd',
@@ -275,7 +433,6 @@
   function updateMapMarkers() {
     if (!leafletMap) return;
 
-    // Clear previous markers
     leafletMarkers.forEach(m => leafletMap.removeLayer(m));
     leafletMarkers = [];
 
@@ -298,7 +455,7 @@
         <div style="font-family: var(--font-sans); padding: 4px; max-width: 220px;">
           <img src="${item.image}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 6px; margin-bottom: 6px;">
           <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a; line-height: 1.2;">${name}</div>
-          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">${item.flag} ${country} · ${item.city[currentLang]}</div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">${item.flag} ${country} · ${item.city[currentLang] || item.city.en}</div>
           <button onclick="window.__openLandmarkModal('${item.id}')" style="width: 100%; padding: 4px 8px; background: #f59e0b; color: #ffffff; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none;">
             ${I18N.explore_3d[currentLang]}
           </button>
@@ -310,10 +467,12 @@
     });
   }
 
-  // Global helper for map popup button
   window.__openLandmarkModal = function (id) {
     const item = LANDMARKS_DATA.find(x => x.id === id);
-    if (item) openModal(item);
+    if (item) {
+      updateHeroStage(item);
+      openModal(item);
+    }
   };
 
   // =========================================================================
@@ -327,14 +486,18 @@
     modalBackdrop.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Initialize or load 3D Model
+    // Initialize or load Modal 3D Model
     setTimeout(() => {
-      if (!threeViewer) {
-        threeViewer = new Landmark3DViewer('three-canvas-container');
+      if (!modalViewer) {
+        modalViewer = new Landmark3DViewer('three-canvas-container', {
+          autoRotate: true,
+          cameraZ: 21,
+          cameraY: 8.5
+        });
       }
-      threeViewer.loadModel(item.modelType);
-      threeViewer.resetView();
-    }, 50);
+      modalViewer.loadModel(item.modelType);
+      modalViewer.resetView();
+    }, 60);
   }
 
   function closeModal() {
@@ -386,7 +549,6 @@
         isSpeaking = false;
         updateAudioButtonState();
       };
-
       utterance.onerror = () => {
         isSpeaking = false;
         updateAudioButtonState();
@@ -447,7 +609,6 @@
         const dim = pill.getAttribute('data-dim');
         const val = pill.getAttribute('data-val');
 
-        // Update active class on siblings in the same row
         const row = pill.closest('.filter-row');
         row.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
@@ -466,6 +627,7 @@
         const list = getFilteredLandmarks();
         if (list.length > 0) {
           const rand = list[Math.floor(Math.random() * list.length)];
+          updateHeroStage(rand);
           openModal(rand);
         }
       });
@@ -511,11 +673,11 @@
       }
     });
 
-    // 3D Viewport Controls
+    // Modal 3D Viewport Controls
     if (btnWireframe) {
       btnWireframe.addEventListener('click', () => {
-        if (threeViewer) {
-          const isWire = threeViewer.toggleWireframe();
+        if (modalViewer) {
+          const isWire = modalViewer.toggleWireframe();
           btnWireframe.classList.toggle('active', isWire);
         }
       });
@@ -523,8 +685,8 @@
 
     if (btnRotate) {
       btnRotate.addEventListener('click', () => {
-        if (threeViewer) {
-          const isRot = threeViewer.toggleAutoRotate();
+        if (modalViewer) {
+          const isRot = modalViewer.toggleAutoRotate();
           btnRotate.classList.toggle('active', isRot);
         }
       });
@@ -532,7 +694,7 @@
 
     if (btnResetVp) {
       btnResetVp.addEventListener('click', () => {
-        if (threeViewer) threeViewer.resetView();
+        if (modalViewer) modalViewer.resetView();
       });
     }
 
@@ -543,5 +705,9 @@
   }
 
   // Launch on ready
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
