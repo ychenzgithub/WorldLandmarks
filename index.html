@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>世界著名建筑与地标画廊 | World Landmarks 3D</title>
-  <meta name="description" content="全屏沉浸式 3D 世界著名建筑与地标空间画廊，支持实时 3D 建筑几何交互解构、中英双语语音导赏与免 API Key 全球空间地图无缝联动。">
+  <meta name="description" content="全屏沉浸式 3D 世界著名建筑与地标空间画廊，支持实时 3D 建筑几何交互解构与免 API Key 全球空间地图无缝联动。">
   <meta name="keywords" content="World Landmarks, 3D Architecture, 世界地标, 著名建筑, Three.js, WebGL, 交互地图">
 
   <!-- Open Graph -->
@@ -81,24 +81,13 @@
         <!-- Three.js WebGL Canvas -->
         <div id="hero-three-canvas" class="hero-three-canvas"></div>
 
-        <!-- Top Floating HUD: Landmark Title & Live Tools -->
+        <!-- Top Floating HUD: Landmark Title (Names Only) & Live Tools -->
         <div class="stage-hud-top">
           <div class="stage-title-card">
-            <div class="stage-live-badge">
-              <span class="live-dot"></span>
-              <span data-i18n="live_3d">实时 3D 建筑几何视角 · Live WebGL</span>
-            </div>
-            <h1 id="stage-landmark-name" class="stage-main-title">万里长城 Great Wall of China</h1>
-            <div id="stage-landmark-meta" class="stage-meta-tags">
-              <!-- Dynamically populated tags -->
-            </div>
+            <h1 id="stage-landmark-name" class="stage-main-title">万里长城 <span class="subname">Great Wall of China</span></h1>
           </div>
 
           <div class="stage-control-cluster">
-            <button type="button" id="stage-btn-audio" class="hud-action-btn btn-audio" title="朗读语音导赏 / Listen Audio Guide">
-              <i class="fa-solid fa-headphones"></i>
-              <span id="audio-btn-txt" data-i18n="listen_guide">语音导赏</span>
-            </button>
             <button type="button" id="stage-btn-rotate" class="hud-action-btn active" title="自动旋转 / Auto Rotate">
               <i class="fa-solid fa-rotate"></i>
               <span data-i18n="rotate">旋转</span>
@@ -131,26 +120,41 @@
 
   </main>
 
-  <!-- Footer with Busuanzi Counter Compliance -->
+  <!-- Footer with Author, Copyright, 3D Model Attribution & Busuanzi Counter -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <div class="footer-top">
-        <div>
-          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
-            World Landmarks 3D · 世界著名建筑与地标画廊
+      <div class="footer-grid">
+        <!-- Col 1: Author & Project -->
+        <div class="footer-col">
+          <div class="footer-brand-title">World Landmarks 3D · 世界著名建筑与地标画廊</div>
+          <div class="footer-meta-item">
+            <span class="meta-label">作者 / Author:</span>
+            <a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer" class="footer-link">ychenzgithub</a>
           </div>
-          <div>全屏 3D 建筑几何视角 · 4,500年人类文明结晶 · 全球空间地图无缝联动</div>
+          <div class="footer-meta-item">
+            <span class="meta-label">个人主页门户 / Portal:</span>
+            <a href="https://ychenzgithub.github.io/" target="_blank" rel="noopener noreferrer" class="footer-link">ychenzgithub.github.io</a>
+          </div>
+          <div class="footer-meta-item">
+            <span class="meta-label">项目开源仓库 / Repository:</span>
+            <a href="https://github.com/ychenzgithub/WorldLandmarks" target="_blank" rel="noopener noreferrer" class="footer-link">github.com/ychenzgithub/WorldLandmarks</a>
+          </div>
         </div>
 
-        <ul class="footer-links">
-          <li><a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
-          <li><a href="https://ychenzgithub.github.io/"><i class="fa-solid fa-house"></i> 主页门户</a></li>
-          <li><a href="#hero-3d-stage"><i class="fa-solid fa-arrow-up"></i> 返回顶部</a></li>
-        </ul>
+        <!-- Col 2: 3D Model Source Attribution & Copyright -->
+        <div class="footer-col">
+          <div class="footer-sec-title">3D 模型来源与版权声明 / 3D Model &amp; Data Attribution</div>
+          <p class="footer-attribution-text">
+            <strong>3D 模型来源：</strong>本项目的 42 座世界著名建筑与地标 3D 几何体为<strong>原生程序化建模生成 (Procedurally generated with Three.js &amp; WebGL)</strong>，依据真实世界文化遗产的建筑学外观轮廓、结构力学特征与构造尺度算法构筑，零依赖外部沉重模型文件。
+          </p>
+          <p class="footer-attribution-text">
+            <strong>地理空间数据：</strong>交互式全球地图底图由 OpenStreetMap 社区贡献者及 Esri (ArcGIS Online) 免费开放地理信息服务提供。
+          </p>
+        </div>
       </div>
 
       <div class="footer-bottom">
-        <div>© 2026 World Landmarks 3D. Open-source architectural explorer.</div>
+        <div>© 2026 <a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer">ychenzgithub</a>. Open-source architectural explorer released under the MIT License.</div>
         
         <!-- Busuanzi Visit Statistics Counter -->
         <div class="site-stats">
@@ -161,8 +165,6 @@
             · Total visitors / 全站访客：<b id="busuanzi_value_site_uv"></b>
           </span>
         </div>
-
-        <div>Built with Three.js &amp; Leaflet.js (Free OpenStreetMap &amp; Esri Base Layers)</div>
       </div>
     </div>
   </footer>

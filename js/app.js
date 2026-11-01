@@ -12,7 +12,6 @@
   let leafletMarkers = [];
   let heroViewer = null;
   let currentLandmark = null;
-  let isSpeaking = false;
 
   // DOM Elements
   const langToggleBtn = document.getElementById('btn-lang-toggle');
@@ -23,9 +22,6 @@
 
   // Stage DOM
   const stageTitle = document.getElementById('stage-landmark-name');
-  const stageMeta = document.getElementById('stage-landmark-meta');
-  const btnAudio = document.getElementById('stage-btn-audio');
-  const audioBtnTxt = document.getElementById('audio-btn-txt');
   const btnRotate = document.getElementById('stage-btn-rotate');
   const btnWireframe = document.getElementById('stage-btn-wireframe');
   const btnReset = document.getElementById('stage-btn-reset');
@@ -35,15 +31,10 @@
     hero_title: { zh: "世界著名建筑与地标画廊", en: "World Landmarks 3D" },
     search_placeholder: { zh: "搜索建筑、地标、城市、国家或流派...", en: "Search landmark, city, country, style or era..." },
     btn_random: { zh: "随机漫游", en: "Random Landmark" },
-    live_3d: { zh: "实时 3D 建筑几何视角 · Live WebGL", en: "Live 3D Architectural Geometry · WebGL" },
     stage_tip: { zh: "拖拽鼠标左键 360° 旋转 · 滚轮缩放 · 点击下方地图图钉实时切换 3D 建筑", en: "Drag left-click to rotate 360° · Scroll to zoom · Click any map pin below to switch 3D model" },
-    listen_guide: { zh: "语音导赏", en: "Audio Guide" },
-    stop_guide: { zh: "停止朗读", en: "Stop Audio" },
     rotate: { zh: "旋转", en: "Rotate" },
     wireframe: { zh: "线框", en: "Wireframe" },
-    reset_view: { zh: "复位", en: "Reset" },
-    unesco_badge: { zh: "世界文化遗产", en: "UNESCO World Heritage" },
-    national_badge: { zh: "国家级地标", en: "National Landmark" }
+    reset_view: { zh: "复位", en: "Reset" }
   };
 
   function init() {
@@ -136,10 +127,6 @@
         if (heroViewer) heroViewer.resetView();
       });
     }
-
-    if (btnAudio) {
-      btnAudio.addEventListener('click', toggleAudioGuide);
-    }
   }
 
   function setFocusLandmark(landmark) {
@@ -150,11 +137,8 @@
     heroViewer.loadModel(landmark.modelType);
     heroViewer.resetView();
 
-    // Update UI HUD
+    // Update UI Title (Chinese & English names only)
     updateStageContent(landmark);
-
-    // Stop previous audio guide if speaking
-    stopAudioGuide();
 
     // Highlight active pin on map
     if (leafletMap) {
@@ -166,60 +150,10 @@
   }
 
   function updateStageContent(item) {
-    if (!item) return;
+    if (!item || !stageTitle) return;
     const name = item.name[currentLang] || item.name.en;
     const subName = currentLang === 'zh' ? item.name.en : item.name.zh;
-    const country = item.country[currentLang] || item.country.en;
-    const city = item.city[currentLang] || item.city.en;
-    const style = item.style[currentLang] || item.style.en;
-
-    if (stageTitle) {
-      stageTitle.innerHTML = `${name} <span class="subname">${subName}</span>`;
-    }
-
-    if (stageMeta) {
-      stageMeta.innerHTML = `
-        <span class="meta-chip"><i class="fa-solid fa-earth-americas"></i> ${item.flag} ${country} · ${city}</span>
-        <span class="meta-chip"><i class="fa-solid fa-timeline"></i> ${item.year}</span>
-        <span class="meta-chip"><i class="fa-solid fa-compass-drafting"></i> ${style}</span>
-        <span class="meta-chip gold"><i class="fa-solid fa-arrows-up-down"></i> ${item.height}</span>
-        ${item.unesco > 0 ? `<span class="meta-chip unesco"><i class="fa-solid fa-award"></i> UNESCO ${item.unesco}</span>` : ''}
-      `;
-    }
-  }
-
-  // =========================================================================
-  // Audio Guide (Web Speech API)
-  // =========================================================================
-
-  function toggleAudioGuide() {
-    if (!currentLandmark || !('speechSynthesis' in window)) return;
-
-    if (isSpeaking) {
-      stopAudioGuide();
-    } else {
-      const text = `${currentLandmark.name[currentLang]}。${currentLandmark.desc[currentLang]}。工程与力学亮点：${currentLandmark.highlight[currentLang]}`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = currentLang === 'zh' ? 'zh-CN' : 'en-US';
-      utterance.rate = 0.95;
-
-      utterance.onend = stopAudioGuide;
-      utterance.onerror = stopAudioGuide;
-
-      window.speechSynthesis.speak(utterance);
-      isSpeaking = true;
-      if (btnAudio) btnAudio.classList.add('playing');
-      if (audioBtnTxt) audioBtnTxt.textContent = I18N.stop_guide[currentLang];
-    }
-  }
-
-  function stopAudioGuide() {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    isSpeaking = false;
-    if (btnAudio) btnAudio.classList.remove('playing');
-    if (audioBtnTxt) audioBtnTxt.textContent = I18N.listen_guide[currentLang];
+    stageTitle.innerHTML = `${name} <span class="subname">${subName}</span>`;
   }
 
   // =========================================================================
