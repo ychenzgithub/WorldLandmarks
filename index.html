@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>世界著名建筑与地标画廊 | World Landmarks 3D</title>
-  <meta name="description" content="跨越4500年人类文明的著名建筑与地标3D画廊，涵盖世界新七大奇迹、古代遗迹与现代超级工程，支持可交互3D模型、建筑力学解构与中英双语语音导赏。">
-  <meta name="keywords" content="World Landmarks, 3D Architecture, 世界地标, 著名建筑, 世界新七大奇迹, 建筑力学, 交互地图">
+  <meta name="description" content="沉浸式3D世界著名建筑与地标空间画廊，支持实时3D建筑几何交互解构、中英双语语音导赏与免API Key全球空间地图联动。">
+  <meta name="keywords" content="World Landmarks, 3D Architecture, 世界地标, 著名建筑, Three.js, WebGL, 交互地图">
 
   <!-- Open Graph -->
   <meta property="og:title" content="世界著名建筑与地标画廊 | World Landmarks 3D">
-  <meta property="og:description" content="探索42座世界经典建筑与地标，支持交互式3D模型观览、卫星地理定位与双语导赏。">
+  <meta property="og:description" content="沉浸式3D世界建筑交互舞台与全球地理空间图谱。">
   <meta property="og:type" content="website">
 
   <!-- Favicon -->
@@ -31,7 +31,7 @@
 </head>
 <body>
 
-  <!-- Top Sticky Header -->
+  <!-- Top Sticky Header: Brand, Search & Settings -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="#" class="brand">
@@ -47,10 +47,11 @@
       <div class="header-controls">
         <div class="search-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="search-input" class="search-input" placeholder="搜索建筑、地标、城市、国家..." autocomplete="off">
+          <input type="text" id="search-input" class="search-input" placeholder="搜索建筑、地标、城市、国家或流派..." autocomplete="off">
+          <div id="search-dropdown" class="search-dropdown" style="display: none;"></div>
         </div>
 
-        <button type="button" id="btn-random-explore" class="btn-ctrl btn-gold" title="随机漫游 / Random Explore">
+        <button type="button" id="btn-random-explore" class="btn-ctrl btn-gold" title="随机漫游 / Random Landmark">
           <i class="fa-solid fa-dice"></i>
           <span data-i18n="btn_random">随机漫游</span>
         </button>
@@ -71,223 +72,111 @@
     </div>
   </header>
 
-  <main class="container">
-    <!-- Hero Header -->
-    <section class="hero-band">
-      <div class="hero-pill">
-        <i class="fa-solid fa-compass-drafting"></i>
-        <span data-i18n="hero_pill">世界经典建筑巡礼 · 4,500年人类文明结晶</span>
-      </div>
+  <main class="immersive-container">
 
-      <h1 class="hero-heading" data-i18n="hero_title">世界著名建筑与地标画廊</h1>
-      <p class="hero-sub" data-i18n="hero_sub">探索人类历史上最壮丽的建筑奇迹。每座地标均配有可交互3D模型、建筑力学解构、历史背景与中英双语语音导赏。</p>
+    <!-- 1. Immersive 3D Interactive Showcase Stage -->
+    <section class="immersive-stage-section" id="hero-3d-stage">
+      <div class="stage-viewport-frame">
+        <!-- Three.js WebGL Canvas -->
+        <div id="hero-three-canvas" class="hero-three-canvas"></div>
 
-      <!-- Hero 3D Interactive Showcase Stage -->
-      <div class="hero-3d-stage" id="hero-3d-stage">
-        <div class="hero-3d-viewport-box">
-          <div id="hero-three-canvas" class="hero-three-canvas"></div>
-          
-          <!-- Top HUD info overlay -->
-          <div class="stage-hud-top">
-            <div class="stage-title-group">
-              <span class="stage-tag-live"><i class="fa-solid fa-cube"></i> <span data-i18n="live_3d">实时 3D 建筑几何视角 · Live WebGL</span></span>
-              <h2 id="stage-landmark-name" class="stage-landmark-title">万里长城 Great Wall of China</h2>
-              <div id="stage-landmark-meta" class="stage-landmark-meta">🇨🇳 中国 · 公元前7世纪 · 古代军事防御工程</div>
+        <!-- Top Floating HUD: Landmark Title & Live Tools -->
+        <div class="stage-hud-top">
+          <div class="stage-title-card">
+            <div class="stage-live-badge">
+              <span class="live-dot"></span>
+              <span data-i18n="live_3d">实时 3D 建筑几何视角 · Live WebGL</span>
             </div>
-
-            <div class="stage-hud-tools">
-              <button type="button" id="stage-btn-rotate" class="hud-pill-btn" title="自动旋转 / Toggle Auto-Rotation">
-                <i class="fa-solid fa-rotate"></i>
-                <span class="hud-btn-txt" data-i18n="rotate">自动旋转</span>
-              </button>
-              <button type="button" id="stage-btn-wireframe" class="hud-pill-btn" title="线框透视模式 / Wireframe Mode">
-                <i class="fa-solid fa-draw-polygon"></i>
-                <span class="hud-btn-txt" data-i18n="wireframe">线框模式</span>
-              </button>
-              <button type="button" id="stage-btn-reset" class="hud-pill-btn" title="重置视角 / Reset Camera">
-                <i class="fa-solid fa-arrows-to-dot"></i>
-                <span class="hud-btn-txt" data-i18n="reset_view">重置视角</span>
-              </button>
-              <button type="button" id="stage-btn-details" class="hud-pill-btn btn-gold-accent" title="详细图录与中英语音导赏 / Open Deep Dive & Audio Guide">
-                <i class="fa-solid fa-book-open"></i>
-                <span class="hud-btn-txt" data-i18n="view_details">详细图录</span>
-              </button>
+            <h1 id="stage-landmark-name" class="stage-main-title">万里长城 Great Wall of China</h1>
+            <div id="stage-landmark-meta" class="stage-meta-tags">
+              <!-- Dynamically populated tags -->
             </div>
           </div>
 
-          <!-- Bottom floating tip & Quick Switch Ribbon -->
-          <div class="stage-hud-bottom">
-            <div class="stage-quick-pills-label">
-              <i class="fa-solid fa-hand-pointer"></i>
-              <span data-i18n="stage_tip">拖拽 360° 旋转 · 滚轮缩放 | 快速切换 3D 地标：</span>
+          <div class="stage-control-cluster">
+            <button type="button" id="stage-btn-audio" class="hud-action-btn btn-audio" title="朗读语音导赏 / Listen Audio Guide">
+              <i class="fa-solid fa-headphones"></i>
+              <span id="audio-btn-txt" data-i18n="listen_guide">语音导赏</span>
+            </button>
+            <button type="button" id="stage-btn-rotate" class="hud-action-btn active" title="自动旋转 / Auto Rotate">
+              <i class="fa-solid fa-rotate"></i>
+              <span data-i18n="rotate">旋转</span>
+            </button>
+            <button type="button" id="stage-btn-wireframe" class="hud-action-btn" title="线框透视结构 / Wireframe Mode">
+              <i class="fa-solid fa-cube"></i>
+              <span data-i18n="wireframe">线框</span>
+            </button>
+            <button type="button" id="stage-btn-reset" class="hud-action-btn" title="重置视角 / Reset Camera">
+              <i class="fa-solid fa-arrows-to-dot"></i>
+              <span data-i18n="reset_view">复位</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Floating Architectural Intel Pane -->
+        <div class="stage-hud-intel" id="stage-hud-intel">
+          <div class="intel-header">
+            <span class="intel-badge"><i class="fa-solid fa-circle-info"></i> <span data-i18n="arch_intel">建筑解构与历史背景</span></span>
+            <button type="button" id="intel-toggle-btn" class="intel-toggle" title="折叠/展开面板 / Toggle Panel">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="intel-body" id="intel-body-content">
+            <div class="intel-image-wrap">
+              <img id="intel-landmark-img" src="" alt="Landmark Photo" loading="lazy">
+              <a id="intel-map-link" href="#" target="_blank" rel="noopener noreferrer" class="intel-sat-btn" title="在谷歌卫星地图中查看 / Google Satellite View">
+                <i class="fa-solid fa-satellite"></i> <span data-i18n="maps_view">卫星视图</span>
+              </a>
             </div>
+            <p id="intel-landmark-desc" class="intel-desc"></p>
+            <div class="intel-highlight-box">
+              <div class="hl-label"><i class="fa-solid fa-award"></i> <span data-i18n="engineering_highlight">工程力学亮点</span></div>
+              <p id="intel-landmark-highlight" class="hl-text"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom HUD: Interactive Tip & Quick Landmark Switcher -->
+        <div class="stage-hud-bottom">
+          <div class="stage-interaction-tip">
+            <i class="fa-solid fa-hand-pointer"></i>
+            <span data-i18n="stage_tip">按住鼠标左键 360° 旋转 · 滚轮缩放 · 右键平移 | 点击下方地图图钉或快捷栏实时切换：</span>
+          </div>
+          <div class="stage-ribbon-wrapper">
             <div class="stage-quick-ribbon" id="stage-quick-ribbon">
-              <!-- Dynamically populated by js/app.js -->
+              <!-- Dynamically populated ribbon buttons -->
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- View Switcher -->
-      <div class="view-mode-bar">
-        <button type="button" id="btn-view-gallery" class="view-mode-btn active">
-          <i class="fa-solid fa-layer-group"></i>
-          <span data-i18n="view_gallery">3D画廊</span>
-        </button>
-        <button type="button" id="btn-view-map" class="view-mode-btn">
-          <i class="fa-solid fa-earth-americas"></i>
-          <span data-i18n="view_map">世界地图</span>
-        </button>
-      </div>
-
-      <!-- Multi-dimensional Filters -->
-      <div class="filters-container">
-        <!-- Row 1: Curated -->
-        <div class="filter-row">
-          <span class="filter-row-label">✦ 精选推荐</span>
-          <button type="button" class="filter-pill active" data-dim="curated" data-val="all">全部地标 (42)</button>
-          <button type="button" class="filter-pill" data-dim="curated" data-val="new7">世界新七大奇迹</button>
-          <button type="button" class="filter-pill" data-dim="curated" data-val="ancient">古代文明遗迹</button>
-          <button type="button" class="filter-pill" data-dim="curated" data-val="modern">现代超级工程</button>
-          <button type="button" class="filter-pill" data-dim="curated" data-val="unesco">世界文化遗产</button>
-        </div>
-
-        <!-- Row 2: Continents -->
-        <div class="filter-row">
-          <span class="filter-row-label">🌍 大洲分布</span>
-          <button type="button" class="filter-pill active" data-dim="continent" data-val="all">全球全部</button>
-          <button type="button" class="filter-pill" data-dim="continent" data-val="asia">亚洲 (13)</button>
-          <button type="button" class="filter-pill" data-dim="continent" data-val="europe">欧洲 (15)</button>
-          <button type="button" class="filter-pill" data-dim="continent" data-val="americas">美洲 (7)</button>
-          <button type="button" class="filter-pill" data-dim="continent" data-val="africa_me">非洲与中东 (4)</button>
-          <button type="button" class="filter-pill" data-dim="continent" data-val="oceania">大洋洲 (3)</button>
-        </div>
-
-        <!-- Row 3: Styles -->
-        <div class="filter-row">
-          <span class="filter-row-label">🏛 建筑流派</span>
-          <button type="button" class="filter-pill active" data-dim="style" data-val="all">全部流派</button>
-          <button type="button" class="filter-pill" data-dim="style" data-val="ancient">古典与古代石构</button>
-          <button type="button" class="filter-pill" data-dim="style" data-val="gothic">哥特与文艺复兴</button>
-          <button type="button" class="filter-pill" data-dim="style" data-val="eastern">东方东方古典与伊斯兰</button>
-          <button type="button" class="filter-pill" data-dim="style" data-val="modern">现代主义与摩天楼</button>
         </div>
       </div>
     </section>
 
-    <!-- Stats & Count Bar -->
-    <div class="stats-info-bar">
-      <span id="landmarks-count">共展示 42 座世界地标与建筑奇迹</span>
-      <span><i class="fa-solid fa-cube"></i> 3D Procedural Models &amp; Architectural Intel</span>
-    </div>
+    <!-- 2. Interactive World Map Section (100% Free Tile Layer, No API Key) -->
+    <section class="world-map-section">
+      <div class="map-section-header">
+        <div class="map-header-left">
+          <div class="map-section-pill">
+            <i class="fa-solid fa-earth-americas"></i>
+            <span data-i18n="map_pill">空间探索 · 42 座世界地标地理坐标</span>
+          </div>
+          <h2 class="map-section-title" data-i18n="map_title">全球地标空间分布地图</h2>
+          <p class="map-section-sub" data-i18n="map_sub">点击地图中任意金色地标图钉，上方 3D 沉浸式舞台将即时加载该建筑的立体几何模型与建筑解构。</p>
+        </div>
 
-    <!-- 3D Cards Gallery Grid -->
-    <div id="landmarks-grid" class="landmarks-grid">
-      <!-- Injected by js/app.js -->
-    </div>
+        <div class="map-header-right">
+          <span class="map-badge-free"><i class="fa-solid fa-shield-halved"></i> 免费免 Key 开放地图底图 (OpenStreetMap &amp; Esri)</span>
+        </div>
+      </div>
 
-    <!-- Map View Container (Leaflet) -->
-    <div id="map-view-container" class="map-view-container">
-      <div id="landmarks-map"></div>
-    </div>
+      <!-- Leaflet Map Container -->
+      <div class="map-frame-box">
+        <div id="landmarks-map" class="landmarks-map-canvas"></div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Interactive 3D Modal & Detail Explorer -->
-  <div id="landmark-modal" class="modal-backdrop">
-    <div class="modal-content">
-      <button type="button" id="modal-close-btn" class="modal-close-btn" title="关闭 / Close">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <!-- Left Column: 3D Viewport -->
-      <div class="modal-viewport-pane">
-        <div class="viewport-controls-bar">
-          <button type="button" id="btn-toggle-wireframe" class="btn-vp">
-            <i class="fa-solid fa-border-all"></i> <span data-i18n="wireframe">线框模式</span>
-          </button>
-          <button type="button" id="btn-toggle-rotate" class="btn-vp active">
-            <i class="fa-solid fa-arrows-rotate"></i> <span data-i18n="rotate">自动旋转</span>
-          </button>
-          <button type="button" id="btn-reset-view" class="btn-vp">
-            <i class="fa-solid fa-camera-rotate"></i> <span data-i18n="reset_view">重置视角</span>
-          </button>
-        </div>
-
-        <div id="three-canvas-container"></div>
-
-        <div class="viewport-tip-badge">
-          <i class="fa-solid fa-hand-pointer"></i>
-          <span data-i18n="model_tip">拖拽旋转 · 滚轮缩放 3D 几何</span>
-        </div>
-      </div>
-
-      <!-- Right Column: Details Pane -->
-      <div class="modal-details-pane">
-        <div class="modal-header-group">
-          <h2 id="modal-title">地标建筑名称</h2>
-          <div id="modal-subname" class="modal-en-name">Landmark English Name</div>
-        </div>
-
-        <!-- Quick Spec Grid -->
-        <div class="modal-quick-grid">
-          <div class="mq-item">
-            <span class="mq-label">国家 / 地区</span>
-            <span id="modal-country" class="mq-val">国家</span>
-          </div>
-          <div class="mq-item">
-            <span class="mq-label">所在城市</span>
-            <span id="modal-city" class="mq-val">城市</span>
-          </div>
-          <div class="mq-item">
-            <span class="mq-label">建造纪元</span>
-            <span id="modal-year" class="mq-val">年份</span>
-          </div>
-          <div class="mq-item">
-            <span class="mq-label">结构高度</span>
-            <span id="modal-height" class="mq-val">高度</span>
-          </div>
-          <div class="mq-item">
-            <span class="mq-label">建筑风格</span>
-            <span id="modal-style" class="mq-val">风格</span>
-          </div>
-          <div class="mq-item">
-            <span class="mq-label">名录评级</span>
-            <span id="modal-unesco" class="mq-val">世界文化遗产</span>
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div>
-          <div class="modal-section-title">
-            <i class="fa-solid fa-landmark"></i> 建筑纪实与历史沿革
-          </div>
-          <p id="modal-desc" class="modal-narrative"></p>
-        </div>
-
-        <!-- Structural Highlights -->
-        <div>
-          <div class="modal-section-title">
-            <i class="fa-solid fa-compass-drafting"></i> 结构力学与营造特色
-          </div>
-          <div id="modal-highlight" class="modal-highlight-box"></div>
-        </div>
-
-        <!-- Action Bar -->
-        <div class="modal-action-bar">
-          <button type="button" id="btn-audio-guide" class="btn-audio-guide">
-            <i class="fa-solid fa-headphones"></i>
-            <span data-i18n="listen_guide">朗读语音导赏</span>
-          </button>
-          <a id="btn-external-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-link">
-            <i class="fa-solid fa-map-location-dot"></i>
-            <span data-i18n="maps_view">卫星地图</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer with Busuanzi Counter -->
+  <!-- Footer with Busuanzi Counter Compliance -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-top">
@@ -295,13 +184,13 @@
           <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
             World Landmarks 3D · 世界著名建筑与地标画廊
           </div>
-          <div>探索4,500年人类工程、雕塑美学与力学智慧的互动三维图谱</div>
+          <div>沉浸式 3D 建筑几何视角 · 4,500年人类文明结晶 · 全球空间地图探索</div>
         </div>
 
         <ul class="footer-links">
           <li><a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
           <li><a href="https://ychenzgithub.github.io/"><i class="fa-solid fa-house"></i> 主页门户</a></li>
-          <li><a href="#top"><i class="fa-solid fa-arrow-up"></i> 返回顶部</a></li>
+          <li><a href="#hero-3d-stage"><i class="fa-solid fa-arrow-up"></i> 返回 3D 舞台</a></li>
         </ul>
       </div>
 
@@ -318,7 +207,7 @@
           </span>
         </div>
 
-        <div>Built with Three.js &amp; Leaflet.js</div>
+        <div>Powered by Three.js &amp; Leaflet.js (Free OpenStreetMap &amp; Esri Tiles)</div>
       </div>
     </div>
   </footer>
