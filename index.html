@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>世界著名建筑与地标画廊 | World Landmarks 3D</title>
-  <meta name="description" content="沉浸式3D世界著名建筑与地标空间画廊，支持实时3D建筑几何交互解构、中英双语语音导赏与免API Key全球空间地图联动。">
+  <meta name="description" content="全屏沉浸式 3D 世界著名建筑与地标空间画廊，支持实时 3D 建筑几何交互解构、中英双语语音导赏与免 API Key 全球空间地图无缝联动。">
   <meta name="keywords" content="World Landmarks, 3D Architecture, 世界地标, 著名建筑, Three.js, WebGL, 交互地图">
 
   <!-- Open Graph -->
   <meta property="og:title" content="世界著名建筑与地标画廊 | World Landmarks 3D">
-  <meta property="og:description" content="沉浸式3D世界建筑交互舞台与全球地理空间图谱。">
+  <meta property="og:description" content="全屏沉浸式 3D 世界建筑交互舞台与全球空间地图联动。">
   <meta property="og:type" content="website">
 
   <!-- Favicon -->
@@ -33,7 +33,7 @@
 
   <!-- Top Sticky Header: Brand, Search & Settings -->
   <header class="site-header">
-    <div class="container header-inner">
+    <div class="header-inner">
       <a href="#" class="brand">
         <div class="brand-icon">
           <i class="fa-solid fa-landmark-dome"></i>
@@ -72,9 +72,10 @@
     </div>
   </header>
 
-  <main class="immersive-container">
+  <!-- Main Pure Immersion View: 100% Width 3D Stage + Seamless Connected Map -->
+  <main class="immersive-wrapper">
 
-    <!-- 1. Immersive 3D Interactive Showcase Stage -->
+    <!-- 1. Full-Width 3D Interactive Stage -->
     <section class="immersive-stage-section" id="hero-3d-stage">
       <div class="stage-viewport-frame">
         <!-- Three.js WebGL Canvas -->
@@ -113,89 +114,43 @@
           </div>
         </div>
 
-        <!-- Right Floating Architectural Intel Pane -->
-        <div class="stage-hud-intel" id="stage-hud-intel">
-          <div class="intel-header">
-            <span class="intel-badge"><i class="fa-solid fa-circle-info"></i> <span data-i18n="arch_intel">建筑解构与历史背景</span></span>
-            <button type="button" id="intel-toggle-btn" class="intel-toggle" title="折叠/展开面板 / Toggle Panel">
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
-          <div class="intel-body" id="intel-body-content">
-            <div class="intel-image-wrap">
-              <img id="intel-landmark-img" src="" alt="Landmark Photo" loading="lazy">
-              <a id="intel-map-link" href="#" target="_blank" rel="noopener noreferrer" class="intel-sat-btn" title="在谷歌卫星地图中查看 / Google Satellite View">
-                <i class="fa-solid fa-satellite"></i> <span data-i18n="maps_view">卫星视图</span>
-              </a>
-            </div>
-            <p id="intel-landmark-desc" class="intel-desc"></p>
-            <div class="intel-highlight-box">
-              <div class="hl-label"><i class="fa-solid fa-award"></i> <span data-i18n="engineering_highlight">工程力学亮点</span></div>
-              <p id="intel-landmark-highlight" class="hl-text"></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom HUD: Interactive Tip & Quick Landmark Switcher -->
+        <!-- Bottom Floating Tip Overlay -->
         <div class="stage-hud-bottom">
           <div class="stage-interaction-tip">
             <i class="fa-solid fa-hand-pointer"></i>
-            <span data-i18n="stage_tip">按住鼠标左键 360° 旋转 · 滚轮缩放 · 右键平移 | 点击下方地图图钉或快捷栏实时切换：</span>
-          </div>
-          <div class="stage-ribbon-wrapper">
-            <div class="stage-quick-ribbon" id="stage-quick-ribbon">
-              <!-- Dynamically populated ribbon buttons -->
-            </div>
+            <span data-i18n="stage_tip">拖拽鼠标左键 360° 旋转 · 滚轮缩放 · 点击下方地图图钉实时切换 3D 建筑</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. Interactive World Map Section (100% Free Tile Layer, No API Key) -->
-    <section class="world-map-section">
-      <div class="map-section-header">
-        <div class="map-header-left">
-          <div class="map-section-pill">
-            <i class="fa-solid fa-earth-americas"></i>
-            <span data-i18n="map_pill">空间探索 · 42 座世界地标地理坐标</span>
-          </div>
-          <h2 class="map-section-title" data-i18n="map_title">全球地标空间分布地图</h2>
-          <p class="map-section-sub" data-i18n="map_sub">点击地图中任意金色地标图钉，上方 3D 沉浸式舞台将即时加载该建筑的立体几何模型与建筑解构。</p>
-        </div>
-
-        <div class="map-header-right">
-          <span class="map-badge-free"><i class="fa-solid fa-shield-halved"></i> 免费免 Key 开放地图底图 (OpenStreetMap &amp; Esri)</span>
-        </div>
-      </div>
-
-      <!-- Leaflet Map Container -->
-      <div class="map-frame-box">
-        <div id="landmarks-map" class="landmarks-map-canvas"></div>
-      </div>
+    <!-- 2. Seamlessly Connected Interactive World Map (100% Width, Zero Header Clutter, Free Tiles) -->
+    <section class="world-map-section" id="world-map-section">
+      <div id="landmarks-map" class="landmarks-map-canvas"></div>
     </section>
 
   </main>
 
   <!-- Footer with Busuanzi Counter Compliance -->
   <footer class="site-footer">
-    <div class="container">
+    <div class="footer-inner">
       <div class="footer-top">
         <div>
           <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
             World Landmarks 3D · 世界著名建筑与地标画廊
           </div>
-          <div>沉浸式 3D 建筑几何视角 · 4,500年人类文明结晶 · 全球空间地图探索</div>
+          <div>全屏 3D 建筑几何视角 · 4,500年人类文明结晶 · 全球空间地图无缝联动</div>
         </div>
 
         <ul class="footer-links">
           <li><a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
           <li><a href="https://ychenzgithub.github.io/"><i class="fa-solid fa-house"></i> 主页门户</a></li>
-          <li><a href="#hero-3d-stage"><i class="fa-solid fa-arrow-up"></i> 返回 3D 舞台</a></li>
+          <li><a href="#hero-3d-stage"><i class="fa-solid fa-arrow-up"></i> 返回顶部</a></li>
         </ul>
       </div>
 
       <div class="footer-bottom">
-        <div>© 2026 World Landmarks 3D. Open-source architectural project created with precision.</div>
+        <div>© 2026 World Landmarks 3D. Open-source architectural explorer.</div>
         
         <!-- Busuanzi Visit Statistics Counter -->
         <div class="site-stats">
@@ -207,7 +162,7 @@
           </span>
         </div>
 
-        <div>Powered by Three.js &amp; Leaflet.js (Free OpenStreetMap &amp; Esri Tiles)</div>
+        <div>Built with Three.js &amp; Leaflet.js (Free OpenStreetMap &amp; Esri Base Layers)</div>
       </div>
     </div>
   </footer>
