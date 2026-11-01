@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>世界著名建筑与地标画廊 | World Landmarks 3D</title>
+  <meta name="description" content="跨越4500年人类文明的著名建筑与地标3D画廊，涵盖世界新七大奇迹、古代遗迹与现代超级工程，支持可交互3D模型、建筑力学解构与中英双语语音导赏。">
+  <meta name="keywords" content="World Landmarks, 3D Architecture, 世界地标, 著名建筑, 世界新七大奇迹, 建筑力学, 交互地图">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="世界著名建筑与地标画廊 | World Landmarks 3D">
+  <meta property="og:description" content="探索42座世界经典建筑与地标，支持交互式3D模型观览、卫星地理定位与双语导赏。">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-landmark-dome"></i>
+        </div>
+        <div>
+          <div class="brand-title"><span class="gradient-text">World Landmarks</span> 3D</div>
+          <div class="brand-subtitle" data-i18n="hero_title">世界著名建筑与地标画廊</div>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" class="search-input" placeholder="搜索建筑、地标、城市、国家..." autocomplete="off">
+        </div>
+
+        <button type="button" id="btn-random-explore" class="btn-ctrl btn-gold" title="随机漫游 / Random Explore">
+          <i class="fa-solid fa-dice"></i>
+          <span data-i18n="btn_random">随机漫游</span>
+        </button>
+
+        <button type="button" id="btn-lang-toggle" class="btn-ctrl" title="切换中英文 / Switch Language">
+          <i class="fa-solid fa-globe"></i>
+          <span class="lang-txt">EN</span>
+        </button>
+
+        <button type="button" id="btn-theme-toggle" class="btn-ctrl btn-icon-only" title="切换深浅主题 / Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+
+        <a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer" class="btn-ctrl btn-icon-only" title="GitHub Profile">
+          <i class="fa-brands fa-github"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Header -->
+    <section class="hero-band">
+      <div class="hero-pill">
+        <i class="fa-solid fa-compass-drafting"></i>
+        <span data-i18n="hero_pill">世界经典建筑巡礼 · 4,500年人类文明结晶</span>
+      </div>
+
+      <h1 class="hero-heading" data-i18n="hero_title">世界著名建筑与地标画廊</h1>
+      <p class="hero-sub" data-i18n="hero_sub">探索人类历史上最壮丽的建筑奇迹。每座地标均配有可交互3D模型、建筑力学解构、历史背景与中英双语语音导赏。</p>
+
+      <!-- View Switcher -->
+      <div class="view-mode-bar">
+        <button type="button" id="btn-view-gallery" class="view-mode-btn active">
+          <i class="fa-solid fa-layer-group"></i>
+          <span data-i18n="view_gallery">3D画廊</span>
+        </button>
+        <button type="button" id="btn-view-map" class="view-mode-btn">
+          <i class="fa-solid fa-earth-americas"></i>
+          <span data-i18n="view_map">世界地图</span>
+        </button>
+      </div>
+
+      <!-- Multi-dimensional Filters -->
+      <div class="filters-container">
+        <!-- Row 1: Curated -->
+        <div class="filter-row">
+          <span class="filter-row-label">✦ 精选推荐</span>
+          <button type="button" class="filter-pill active" data-dim="curated" data-val="all">全部地标 (42)</button>
+          <button type="button" class="filter-pill" data-dim="curated" data-val="new7">世界新七大奇迹</button>
+          <button type="button" class="filter-pill" data-dim="curated" data-val="ancient">古代文明遗迹</button>
+          <button type="button" class="filter-pill" data-dim="curated" data-val="modern">现代超级工程</button>
+          <button type="button" class="filter-pill" data-dim="curated" data-val="unesco">世界文化遗产</button>
+        </div>
+
+        <!-- Row 2: Continents -->
+        <div class="filter-row">
+          <span class="filter-row-label">🌍 大洲分布</span>
+          <button type="button" class="filter-pill active" data-dim="continent" data-val="all">全球全部</button>
+          <button type="button" class="filter-pill" data-dim="continent" data-val="asia">亚洲 (13)</button>
+          <button type="button" class="filter-pill" data-dim="continent" data-val="europe">欧洲 (15)</button>
+          <button type="button" class="filter-pill" data-dim="continent" data-val="americas">美洲 (7)</button>
+          <button type="button" class="filter-pill" data-dim="continent" data-val="africa_me">非洲与中东 (4)</button>
+          <button type="button" class="filter-pill" data-dim="continent" data-val="oceania">大洋洲 (3)</button>
+        </div>
+
+        <!-- Row 3: Styles -->
+        <div class="filter-row">
+          <span class="filter-row-label">🏛 建筑流派</span>
+          <button type="button" class="filter-pill active" data-dim="style" data-val="all">全部流派</button>
+          <button type="button" class="filter-pill" data-dim="style" data-val="ancient">古典与古代石构</button>
+          <button type="button" class="filter-pill" data-dim="style" data-val="gothic">哥特与文艺复兴</button>
+          <button type="button" class="filter-pill" data-dim="style" data-val="eastern">东方东方古典与伊斯兰</button>
+          <button type="button" class="filter-pill" data-dim="style" data-val="modern">现代主义与摩天楼</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats & Count Bar -->
+    <div class="stats-info-bar">
+      <span id="landmarks-count">共展示 42 座世界地标与建筑奇迹</span>
+      <span><i class="fa-solid fa-cube"></i> 3D Procedural Models &amp; Architectural Intel</span>
+    </div>
+
+    <!-- 3D Cards Gallery Grid -->
+    <div id="landmarks-grid" class="landmarks-grid">
+      <!-- Injected by js/app.js -->
+    </div>
+
+    <!-- Map View Container (Leaflet) -->
+    <div id="map-view-container" class="map-view-container">
+      <div id="landmarks-map"></div>
+    </div>
+  </main>
+
+  <!-- Interactive 3D Modal & Detail Explorer -->
+  <div id="landmark-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <button type="button" id="modal-close-btn" class="modal-close-btn" title="关闭 / Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Left Column: 3D Viewport -->
+      <div class="modal-viewport-pane">
+        <div class="viewport-controls-bar">
+          <button type="button" id="btn-toggle-wireframe" class="btn-vp">
+            <i class="fa-solid fa-border-all"></i> <span data-i18n="wireframe">线框模式</span>
+          </button>
+          <button type="button" id="btn-toggle-rotate" class="btn-vp active">
+            <i class="fa-solid fa-arrows-rotate"></i> <span data-i18n="rotate">自动旋转</span>
+          </button>
+          <button type="button" id="btn-reset-view" class="btn-vp">
+            <i class="fa-solid fa-camera-rotate"></i> <span data-i18n="reset_view">重置视角</span>
+          </button>
+        </div>
+
+        <div id="three-canvas-container"></div>
+
+        <div class="viewport-tip-badge">
+          <i class="fa-solid fa-hand-pointer"></i>
+          <span data-i18n="model_tip">拖拽旋转 · 滚轮缩放 3D 几何</span>
+        </div>
+      </div>
+
+      <!-- Right Column: Details Pane -->
+      <div class="modal-details-pane">
+        <div class="modal-header-group">
+          <h2 id="modal-title">地标建筑名称</h2>
+          <div id="modal-subname" class="modal-en-name">Landmark English Name</div>
+        </div>
+
+        <!-- Quick Spec Grid -->
+        <div class="modal-quick-grid">
+          <div class="mq-item">
+            <span class="mq-label">国家 / 地区</span>
+            <span id="modal-country" class="mq-val">国家</span>
+          </div>
+          <div class="mq-item">
+            <span class="mq-label">所在城市</span>
+            <span id="modal-city" class="mq-val">城市</span>
+          </div>
+          <div class="mq-item">
+            <span class="mq-label">建造纪元</span>
+            <span id="modal-year" class="mq-val">年份</span>
+          </div>
+          <div class="mq-item">
+            <span class="mq-label">结构高度</span>
+            <span id="modal-height" class="mq-val">高度</span>
+          </div>
+          <div class="mq-item">
+            <span class="mq-label">建筑风格</span>
+            <span id="modal-style" class="mq-val">风格</span>
+          </div>
+          <div class="mq-item">
+            <span class="mq-label">名录评级</span>
+            <span id="modal-unesco" class="mq-val">世界文化遗产</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <div class="modal-section-title">
+            <i class="fa-solid fa-landmark"></i> 建筑纪实与历史沿革
+          </div>
+          <p id="modal-desc" class="modal-narrative"></p>
+        </div>
+
+        <!-- Structural Highlights -->
+        <div>
+          <div class="modal-section-title">
+            <i class="fa-solid fa-compass-drafting"></i> 结构力学与营造特色
+          </div>
+          <div id="modal-highlight" class="modal-highlight-box"></div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="modal-action-bar">
+          <button type="button" id="btn-audio-guide" class="btn-audio-guide">
+            <i class="fa-solid fa-headphones"></i>
+            <span data-i18n="listen_guide">朗读语音导赏</span>
+          </button>
+          <a id="btn-external-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-link">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span data-i18n="maps_view">卫星地图</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with Busuanzi Counter -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+            World Landmarks 3D · 世界著名建筑与地标画廊
+          </div>
+          <div>探索4,500年人类工程、雕塑美学与力学智慧的互动三维图谱</div>
+        </div>
+
+        <ul class="footer-links">
+          <li><a href="https://github.com/ychenzgithub" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
+          <li><a href="https://ychenzgithub.github.io/"><i class="fa-solid fa-house"></i> 主页门户</a></li>
+          <li><a href="#top"><i class="fa-solid fa-arrow-up"></i> 返回顶部</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 World Landmarks 3D. Open-source architectural project created with precision.</div>
+        
+        <!-- Busuanzi Visit Statistics Counter -->
+        <div class="site-stats">
+          <span id="busuanzi_container_page_pv" style="display:none">
+            Page views / 本页访问：<b id="busuanzi_value_page_pv"></b>
+          </span>
+          <span id="busuanzi_container_site_uv" style="display:none">
+            · Total visitors / 全站访客：<b id="busuanzi_value_site_uv"></b>
+          </span>
+        </div>
+
+        <div>Built with Three.js &amp; Leaflet.js</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data/landmarks.js"></script>
+  <script src="js/three-viewer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
